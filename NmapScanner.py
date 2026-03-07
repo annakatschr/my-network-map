@@ -2,52 +2,63 @@ import subprocess
 import json
 
 class NmapScanner:
-    def __init__(self):
+    def __init__(self, target="scanme.nmap.org"):
         self.FULL_PATH = "C:\\Program Files (x86)\\Nmap\\nmap.exe"
-        self.target = "scanme.nmap.org"
-    
-    def do_open_port_analysis(self):
+        self.target = target
 
-        """
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True
-        )
-        """
-        cmd = [self.FULL_PATH, "-oJ", "-", "-sV", self.target]
+
+    def run_command(self, cmd):
         result = subprocess.run(cmd, capture_output=True, text=True)
-        print("Nmap output:", result.stdout)
-        """
-        json_buffer = ""
+       # data = json.loads(result.stdout)
+        print("Command output:", result.stdout)
+        return result.stdout
 
-        for line in process.stdout:
-            if line.strip().startswith("{") or json_buffer:
-                json_buffer += line
-            else:
-                print("[progress]", line.strip())
 
-        process.wait()
-
-        data = json.loads(json_buffer)
-        print("Parsed JSON keys:", data.keys()
-        """
+    def do_open_port_analysis(self):
+        cmd = [self.FULL_PATH, "-oJ", "-", "-sV", self.target]
+        return self.run_command(cmd)
+      #  print("Parsed JSON keys:", list(data.keys()))
+      
 
     def do_stealthy_scan(self):
         cmd = [self.FULL_PATH, "-sS", self.target]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        print("Stealthy scan output:", result.stdout)
+        return self.run_command(cmd)
+    
 
-    def finf_udp_ports(self):
+    def find_udp_ports(self):
         cmd = [self.FULL_PATH, "-sU", self.target]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        print("UDP scan output:", result.stdout)
+        return self.run_command(cmd)
+
 
     def guess_os(self):
         cmd = [self.FULL_PATH, "-O", self.target]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        print("OS detection output:", result.stdout)
+        return self.run_command(cmd)
+    
+    def do_aggressive_scan(self):
+        cmd = [self.FULL_PATH, "-A", self.target]
+        return self.run_command(cmd)
+    
+    # A banner is simply the initial text a service sends back when you connect to it, often before you even authenticate.
+    # 1. Identify services quickl
+    # 2. Check for outdated or vulnerable version
+    # If banner contains “Apache”, run web-specific scripts
+    # If banner contains “OpenSSH”, check auth methods
+    # If banner contains “ProFTPD”, check for anonymous login
+    def run_nse_banner_script(self):
+        cmd = [self.FULL_PATH, "--script=banner", self.target]
+        return self.run_command(cmd)
+    
+    def run_nse_ftp_anonymous_script(self):
+        cmd = [self.FULL_PATH, "--script=ftp-anon", self.target]
+        return self.run_command(cmd)
+    
+    def run_nse_ftp_system_script(self):
+        cmd = [self.FULL_PATH, "--script=ftp-syst", self.target]
+        return self.run_command(cmd)
+    
+    def run_nse_tftp_enum_script(self):
+        cmd = [self.FULL_PATH, "--script=tftp-enum", self.target]
+        return self.run_command(cmd)
 
 if __name__ == "__main__":
     scanner = NmapScanner()
